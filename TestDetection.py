@@ -29,13 +29,10 @@ ciao
 
 def file_immagine_valido(file_immagine: Path):
 
-    for estensione in estensioni_supportate:
-
-        if file_immagine.name.lower().endswith(estensione):
-
-            return True
- 
-    return False
+    return any(
+        file_immagine.name.lower().endswith(estensione)
+        for estensione in estensioni_supportate
+    )
 
 def crea_percorsi(cartella: Path):
 
@@ -58,7 +55,7 @@ def scrivi_su_file_di_testo(file_testo: Path, detections: list):
 
             f.write('Scansione in data: %s, alle ore: %s\n\n' % (str(informazioni.strftime('%y-%m-%d')), str(informazioni.today().strftime('%H.%M.%S'))))
 
-            if len(detections) == 0:
+            if not detections:
 
                 f.write('Nessun oggetto rilevato!')
 

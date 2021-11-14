@@ -1,4 +1,5 @@
 from imageai.Detection.Custom import CustomObjectDetection
+
 import os
 
 class FileNotValidException(Exception):

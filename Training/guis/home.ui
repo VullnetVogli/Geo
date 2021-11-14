@@ -11,10 +11,16 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Frame</string>
+   <string>Training</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::NoFrame</enum>
+  </property>
+  <property name="lineWidth">
+   <number>10</number>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
@@ -27,6 +33,9 @@
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QLabel" name="label">
+             <property name="toolTip">
+              <string>Directory contenente le immagini di 'training' e 'validation'</string>
+             </property>
              <property name="text">
               <string>Data directory</string>
              </property>
@@ -50,6 +59,9 @@
            </item>
            <item>
             <widget class="QLabel" name="label_2">
+             <property name="toolTip">
+              <string>Path del modello 'pretrained_yolo</string>
+             </property>
              <property name="text">
               <string>Pretrained model</string>
              </property>
@@ -62,7 +74,10 @@
            <item>
             <widget class="QLineEdit" name="textDataDirectory">
              <property name="text">
-              <string>D:\Cartelli\DARE PRECEDENZA</string>
+              <string/>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -83,7 +98,11 @@
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="textPretrainedModel"/>
+            <widget class="QLineEdit" name="textPretrainedModel">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -166,11 +185,6 @@
                 <property name="selectionMode">
                  <enum>QAbstractItemView::SingleSelection</enum>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>DARE PRECEDENZA</string>
-                 </property>
-                </item>
                </widget>
               </item>
              </layout>
@@ -213,6 +227,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_9">
            <item>
             <widget class="QLabel" name="label_4">
+             <property name="toolTip">
+              <string>Quante immagini dare all'algoritmo ad ogni passo</string>
+             </property>
              <property name="text">
               <string>Batch size</string>
              </property>
@@ -237,6 +254,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
             <widget class="QLabel" name="label_3">
+             <property name="toolTip">
+              <string>Quanti cicli fare</string>
+             </property>
              <property name="text">
               <string>Epoche</string>
              </property>
@@ -301,7 +321,7 @@
           <item>
            <widget class="QLabel" name="epocheTotali">
             <property name="text">
-             <string>0</string>
+             <string>di 1</string>
             </property>
            </widget>
           </item>
@@ -343,78 +363,212 @@
            </layout>
           </item>
           <item>
+           <spacer name="verticalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="Line" name="line_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
+               <widget class="Line" name="line_6">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="labelLayer3">
+                <property name="toolTip">
+                 <string>Grado di accuratezza del modello</string>
+                </property>
                 <property name="text">
                  <string>Loss totale</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="labelLoss">
                 <property name="text">
-                 <string/>
+                 <string>...</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="Line" name="line_7">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QLabel" name="label_7">
                 <property name="text">
                  <string>Loss layer 1</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="labelLossLayer1">
                 <property name="text">
-                 <string/>
+                 <string>...</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_11">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
+             <widget class="Line" name="line_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QVBoxLayout" name="verticalLayout_11">
+              <item>
+               <widget class="Line" name="line_8">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QLabel" name="label_11">
                 <property name="text">
                  <string>Loss layer 2</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="labelLossLayer2">
                 <property name="text">
-                 <string/>
+                 <string>...</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_12">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
+             <widget class="Line" name="line_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="Line" name="line_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QLabel" name="label_8">
                 <property name="text">
                  <string>Loss layer 3</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="labelLossLayer3">
                 <property name="text">
-                 <string/>
+                 <string>...</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_13">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="Line" name="line_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>

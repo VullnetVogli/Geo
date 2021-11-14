@@ -1,4 +1,4 @@
-imageai==2.1.5
+tensorflow==1.15.3
 keras==2.3.1
 numpy==1.19.3
 pillow==7.0.0
@@ -8,3 +8,4 @@ matplotlib==3.3.2
 opencv-python 
 keras-resnet==0.2.0
 labelimg
+pyqtspinner

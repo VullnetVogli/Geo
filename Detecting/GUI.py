@@ -416,6 +416,8 @@ class Home(QMainWindow):
         
         loadUi("guis//home.ui", self)
 
+        self.setFixedSize(1280, 700)
+        
         self.__inizializzaBottoni()
         
         self.files = None
@@ -478,13 +480,9 @@ class Home(QMainWindow):
             
         except ModelNotValidException:
     
-            self.running = False
-            
             creaAvviso(parent = self, messaggio = 'Seleziona un modello valido!', icona = QMessageBox.Critical, func = lambda: self.logs2.append('Modello non valido'))
         
         except JSONNotValidException:
-            
-            self.running = False
             
             creaAvviso(parent = self, messaggio = 'Seleziona un JSON valido!', icona = QMessageBox.Critical, func = lambda: self.logs2.append('JSON non valido'))
     
@@ -550,11 +548,11 @@ class Home(QMainWindow):
     """Metodo per far partire la detenzione"""
     def start(self):
         
-        self.running = True
-        
-        if self.detector is None or not self.detector.same_model(self.textModello.toPlainText()): 
+        if not self.detector.same_model(self.textModello.toPlainText()):         
         
             self.__inizializzaDetector()
+            
+        self.running = True
         
         self.__run()
     
@@ -562,7 +560,7 @@ class Home(QMainWindow):
     def stop(self):
         
         self.running = False
-    
+        
     """
     Metodo per scorrere tutte le immagini che abbiamo e salvare le informazioni in un json.
     N.B. Utilizza start() per iniziare la detenzione.
@@ -577,7 +575,7 @@ class Home(QMainWindow):
             if fileValido(self.files[self.index]):
         
                 self.logs1.append(f'Detecting {self.files[self.index]}...')           
-    
+                QApplication.processEvents()
                 try:
     
                     # Prendiamo la path del file in cui verrà salvato e controlliamo se esiste
@@ -613,6 +611,10 @@ class Home(QMainWindow):
             if self.progressBar.value() == self.progressBar.maximum():
             
                 self.jlogs.salvaLog(output = toJSON(self.textFine.toPlainText()), nomeModello = self.detector.getModelPath(), percentuale = self.detector.PERCENTUALE_MINIMA)
+                
+                self.running = False
+                
+                self.index = 0
    
     """Metodo per ricreare l'albero delle cartelle originale per utilizzare la medesima struttura"""
     def __creaAlberoFiles(self, cartella):

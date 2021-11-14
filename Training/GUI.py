@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QFrame, QListWidgetItem
@@ -7,24 +7,39 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox, QFrame, QListWidgetItem
 from TrainDetection import Train
 
 from Utils import *
+from Loading import Loading
 
-import logging, os
+import os
+
+from Exceptions import *
 
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = 'true'
-
+    
 class Home(QFrame):
 
     # Costruttore
     def __init__(self):
         
-        super(Home, self).__init__()
+        super().__init__()
         
         loadUi("guis//home.ui", self)
-        
+
         self.running = False
         
         self.trainer = Train()
+
+        self.loading = Loading()
         
+        self.trainer.getLog().batch.connect(self._updateBatch)
+        
+        self.trainer.getLog().epoch.connect(self._updateEpoca)
+        
+        self.trainer.getLog().on_start.connect(self.__modificaStatoBottoni)
+        
+        self.trainer.getLog().info.connect(self._updateInfos)
+        
+        self.trainer.getLog().on_stop.connect(lambda: creaAvviso(parent = self, messaggio = 'Training terminato!', icona = QMessageBox.Information, func = lambda: None))
+
         self.__inizilizzaBottoni()
     
     # Inizializzazioni
@@ -34,7 +49,7 @@ class Home(QFrame):
         
         self.btnCartellaModelli.clicked.connect(self.__apriCartellaModelli)
      
-        self.epoche.valueChanged.connect(lambda: self.boxProgress.setTitle(f'0 di {self.epoche.value()}'))
+        self.epoche.valueChanged.connect(lambda: self.epocheTotali.setText(f'di {self.epoche.value()}') if not self.running else None)
      
         self.btnDataPath.clicked.connect(lambda: self.__selezionaModello())
         
@@ -44,57 +59,70 @@ class Home(QFrame):
         
         self.btnRimuovi.clicked.connect(lambda: self.__rimuovi())
     
-    def __inizializzaProgressBar(self):
-    
-        self.progressBarEpoche.reset()
+    def __modificaStatoBottoni(self, abilitato = True):
         
-        self.progressBarEpoche.setRange(0, self.epoche.value() + 3)
-    
-        self.progressBarEpoche.setValue(0)
-
+        for child in self.children():
+            
+            child.setEnabled(abilitato)
+            
+        # Se il menu è disattivato (quindi vogliamo riabilitarlo) vuol dire che la gif deve smettere di girare
+        if abilitato:
+            
+            self.loading.stop()
+        
     # Metodi
     def start(self):
         
-        # if self.textDataDirectory.text() == '':
+        self.__modificaStatoBottoni(abilitato = False)
             
-        #     creaAvviso(parent = self, messaggio = 'Selezionare la cartella prima!', icona = QMessageBox.Critical, func = lambda: None)
-    
-        # elif not self.listObjs.count():
+        if self.textDataDirectory.text() == '':
             
-        #     creaAvviso(parent = self, messaggio = 'Inserisci gli elementi prima!', icona = QMessageBox.Information, func = lambda: None)
+            creaAvviso(parent = self, messaggio = 'Selezionare la cartella prima!', icona = QMessageBox.Critical, func = lambda: None)
     
-        # else:
+        elif not self.listObjs.count():
+            
+            creaAvviso(parent = self, messaggio = 'Inserisci gli elementi prima!', icona = QMessageBox.Information, func = lambda: None)
     
-        self.__run()
+        else:
+        
+            self.progressBarEpoche.setRange(0, self.epoche.value())
+            
+            self.progressBarEpoche.setValue(0)
+            
+            self.progressBarBatch.setRange(0, self.batchSize.value())
+            
+            self.progressBarBatch.setValue(0)
+            
+            self.labelLoss.setText('...')
+            
+            self.labelLossLayer1.setText('...')
+            
+            self.labelLossLayer2.setText('...')
+            
+            self.labelLossLayer3.setText('...')
+            
+            self.loading.start()
+            
+            self.__run()
         
     def __run(self):
         
         elementi = [self.listObjs.item(i).text() for i in range(self.listObjs.count())]
         
-        self.trainer.setDataDirectory(self.textDataDirectory.text())
-        
-        self.trainer.setTrainConfig(oggetti = elementi, batch_size = self.batchSize.value(), num_experiments = self.epoche.value(), train_from_pretrained_model = self.textPretrainedModel.text())
-        
-        self.__inizializzaProgressBar()
-        
-        self.trainer.setObjs({'batch': {
-                                        'label': self.labelBatch,
-                                        'progressBar': self.progressBarBatch,
-                                        'total': self.batchTotali
-                                        },
-                              'loss': {
-                                        'total': self.labelLoss,
-                                        'layer1': self.labelLossLayer1,
-                                        'layer2': self.labelLossLayer2,
-                                        'layer3': self.labelLossLayer3
-                                      },
-                              'epoca': {
-                                  'label': self.labelEpoca,
-                                  'progressBar': self.progressBarEpoche,
-                                  'total': self.epocheTotali
-                              }})
-        
-        self.trainer.start()
+        try:
+            
+            self.trainer.setDataDirectory(self.textDataDirectory.text())
+            
+            self.trainer.setTrainConfig(oggetti = elementi, batch_size = self.batchSize.value(), num_experiments = self.epoche.value() - 3, train_from_pretrained_model = self.textPretrainedModel.text())
+
+            self.trainer.start()
+            
+        except EtichetteNonValideException as e:
+            
+            self.loading.stop()
+            
+            creaAvviso(parent = self, messaggio = e.testo, icona = QMessageBox.Information, func = lambda: None)
+            
         
     def __apriCartellaModelli(self):
         
@@ -134,6 +162,38 @@ class Home(QFrame):
         
         self.trainer.setDataDirectory(path = self.textDataDirectory.text())
     
+    def _updateInfos(self, logs):
+        
+        self.epocheTotali.setText('di ' + str(logs['epochs']))
+        
+        self.progressBarEpoche.setRange(0, logs['epochs'])
+        
+        self.batchTotali.setText('di ' + str(logs['steps']))
+        
+        self.progressBarBatch.setRange(0, logs['steps'])
+    
+    def _updateEpoca(self, logs):
+        
+        self.labelEpoca.setText(str(logs['epoch']))
+        
+        self.progressBarEpoche.setValue(logs['epoch'])
+        
+    def _updateBatch(self, logs):
+        
+        logs['batch'] += 1
+        
+        self.labelBatch.setText(str(logs['batch']))
+    
+        self.progressBarBatch.setValue(logs['batch'])
+        
+        self.labelLoss.setText(str(logs['loss']))
+        
+        self.labelLossLayer1.setText(str(logs['yolo_layer_1_loss']))
+        
+        self.labelLossLayer2.setText(str(logs['yolo_layer_2_loss']))
+        
+        self.labelLossLayer3.setText(str(logs['yolo_layer_3_loss']))
+    
     # File/Folder Dialogs
     def __openFolder(self, caption, textField):
         
@@ -150,6 +210,12 @@ class Home(QFrame):
         if fileName:
             
             textField.setText(fileName)
+            
+    def closeEvent(self, event):
+        
+        self.loading.stop()
+        
+        self.loading.destroy()
             
 if __name__ == "__main__":
     
@@ -171,7 +237,7 @@ if __name__ == "__main__":
     palette.setColor(QPalette.Link, QColor(42, 130, 218))
     palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
     palette.setColor(QPalette.HighlightedText, Qt.black)
-    app.setPalette(palette)
+    # app.setPalette(palette)
 
     home = Home()
     home.show()
